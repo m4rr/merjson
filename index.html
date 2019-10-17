@@ -1,11 +1,11 @@
 <style>
   textarea {
     width: 100%;
-    height: 90vh;
+    height: 85vh;
   }
 </style>
 
-Drop here the `original.json` and a new `xhr_file` (no ext.):<br />
+<h2>Drop here the `original.json` and a new `xhr_file` (no ext.)</h2>
 <input type="file" id="files" name="files[]" multiple />
 <br>
 <button id="merge">M E R G E</button>
@@ -16,7 +16,7 @@ Drop here the `original.json` and a new `xhr_file` (no ext.):<br />
 <div id="areas"></div>
 <textarea id="t0"></textarea>
 
-<script src="deepmerge.js"></script>
+<!-- <script src="deepmerge.js"></script> -->
 <script>
   function handleFileSelect(evt) {
     var files = evt.target.files; // FileList object
@@ -47,13 +47,8 @@ Drop here the `original.json` and a new `xhr_file` (no ext.):<br />
           if (!--files_count) {
             result.push([{"city_id":101175000,"title_en":"Kawthaung","country_ru":"Бирма","country_en":"Burma","title_ru":"Котонг","y":9.983333,"x":98.55}]);
 
-            merjson(result);  // when done, invoke callback
-
-            //console.log(Date.now(), result);
-
-            //console.log(files_count, result.length);
+            merjson(result); // when done, invoke callback
           }
-
         };
       })(f);
 
@@ -65,6 +60,12 @@ Drop here the `original.json` and a new `xhr_file` (no ext.):<br />
     let obj = ary;
 
     for (let i = 0; i < obj.length; i++) {
+      if (obj[i].title_en === "Mawlamyine") {
+        // remove wrong Burma city
+        delete obj[i]
+        continue
+      }
+
       //obj[i].i = i;
       delete obj[i].i;
       delete obj[i].been_count_msg;
@@ -87,19 +88,14 @@ Drop here the `original.json` and a new `xhr_file` (no ext.):<br />
   }
 
   function merjson(result) {
-    //console.log(result);
     //let obj = deepmerge.all(result);
     let obj = result.reduce(function (prev, next) {
+      // concat all arrays
       return [...prev, ...next]
-      //return new Set([...prev, ...next]);
-    }).unique();
+    });
 
+    // crazy js way to remove duplicates
     obj = [...new Set(obj.map(JSON.stringify))].map(JSON.parse);
-
-    //things.thing = Array.from(new Set(myData.map(JSON.stringify))).map(JSON.parse);
-
-
-    //console.log(obj);
 
     document.getElementById("t0").innerHTML = JSON.stringify(obj);
     document.getElementById("count").innerHTML += " → " + obj.length;
