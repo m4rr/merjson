@@ -58,14 +58,15 @@ function clean_up(ary) {
       }
     }
 
-    if (obj[i].title_en === "Mawlamyine") {
+    if (obj[i].title_en === "Mawlamyine" || obj[i].title_en === "Myeik") {
       // replace wrong Burma city to right one
       obj[i].title_ru = "Котонг"
       obj[i].title_en = "Kawthaung"
       obj[i].country_ru = "Бирма"
       obj[i].country_en = "Burma"
-      obj[i].y = 9.983333
       obj[i].x = 98.55
+      obj[i].y = 9.983333
+      obj[i].city_id = 101175000
     }
   }
 
