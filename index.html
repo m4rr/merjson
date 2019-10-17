@@ -5,6 +5,7 @@
   }
 </style>
 
+Drop here the `original.json` and a new `xhr_file` (no ext.):<br />
 <input type="file" id="files" name="files[]" multiple />
 <br>
 <button id="merge">M E R G E</button>
@@ -34,14 +35,25 @@
           if (file.name.includes(".json")) {
             // production file
             document.getElementById('count').innerHTML += json1.length + ", ";
-            result.push(json1);
+
+            result.push(clean_up(json1));
           } else {
             // XHR file
             document.getElementById('count').innerHTML += json1.cities.length + ", ";
-            result.push(json1.cities);
+
+            result.push(clean_up(json1.cities));
           }
 
-          if (!--files_count) merjson(result);  // when done, invoke callback
+          if (!--files_count) {
+            result.push([{"city_id":101175000,"title_en":"Kawthaung","country_ru":"Бирма","country_en":"Burma","title_ru":"Котонг","y":9.983333,"x":98.55}]);
+
+            merjson(result);  // when done, invoke callback
+
+            //console.log(Date.now(), result);
+
+            //console.log(files_count, result.length);
+          }
+
         };
       })(f);
 
@@ -49,12 +61,12 @@
     }
   }
 
-  function merjson(result) {
-    let obj = deepmerge.all(result);
-    //let cities = obj.cities;
+  function clean_up(ary) {
+    let obj = ary;
 
     for (let i = 0; i < obj.length; i++) {
-      obj[i].i = i;
+      //obj[i].i = i;
+      delete obj[i].i;
       delete obj[i].been_count_msg;
       delete obj[i].want;
       delete obj[i].visited;
@@ -62,7 +74,32 @@
       delete obj[i].been_count;
       delete obj[i].city_url;
       delete obj[i].image_url;
+
+      if (obj[i].country_en === "Ukraine") {
+        if (obj[i].title_en !== "Odessa") {
+          obj[i].country_en = "Russia"
+          obj[i].country_ru = "Россия"
+        }
+      }
     }
+
+    return obj;
+  }
+
+  function merjson(result) {
+    //console.log(result);
+    //let obj = deepmerge.all(result);
+    let obj = result.reduce(function (prev, next) {
+      return [...prev, ...next]
+      //return new Set([...prev, ...next]);
+    }).unique();
+
+    obj = [...new Set(obj.map(JSON.stringify))].map(JSON.parse);
+
+    //things.thing = Array.from(new Set(myData.map(JSON.stringify))).map(JSON.parse);
+
+
+    //console.log(obj);
 
     document.getElementById("t0").innerHTML = JSON.stringify(obj);
     document.getElementById("count").innerHTML += " → " + obj.length;
